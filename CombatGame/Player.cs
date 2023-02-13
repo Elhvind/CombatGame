@@ -8,7 +8,7 @@ public class Player
     {
         Name = name;
         Health = 25;
-        MinDamage = 1;
+        MinDamage = 2;
         MaxDamage = 6;
         CriticalChance = 15;
     }
@@ -30,12 +30,12 @@ public class Player
         var damage = RandomNumberGenerator.Next(MinDamage, MaxDamage);
 
         var criticalHit = RandomNumberGenerator.Next(0, 100) <= CriticalChance;
-
-
+        if (criticalHit)
+            damage *= 2;
 
         other.Health -= damage;
 
-        return $"{Name} attacks {other.Name} for {damage} damage.";
+        return $"{Name} attacks {other.Name} for {damage} damage. {(criticalHit ? "(crit)" : "")}";
     }
 
     public string Heal()
