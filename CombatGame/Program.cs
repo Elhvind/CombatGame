@@ -7,7 +7,7 @@ var currentPlayerIndex = 0;
 
 var players = new Player[3]
 {
-    new Player("DonaldTrump"),
+    new Player("TonaldDrump"),
     new Player("Elhvind"),
     new Player("Mivsen"),
 };
