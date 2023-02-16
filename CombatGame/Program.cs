@@ -1,114 +1,50 @@
-﻿using CombatGame;
+﻿var game = Game.Start();
 
-var consoleLog = new List<(int turn, string action)>();
-
-var turn = 1;
-var currentPlayerIndex = 0;
-
-var players = new Player[3]
+while (game.Active)
 {
-    new Player("TronaldDump"),
-    new Player("Elhvind"),
-    new Player("Mivsen"),
-};
-
-while (players.Count(p => p.Alive) > 1)
-{
-    PrintMenu(true);
-
-    Console.Write("Select Action: ");
-
-    var currentPlayer = players[currentPlayerIndex];
-    var alivePlayers = players.Where(x => x.Alive && x.Name != currentPlayer.Name);
+    PrintMenu();
 
     string action;
-
-    switch (Console.ReadKey())
+    switch (game.SelectAction())
     {
         case { Key: ConsoleKey.A }:
-            Console.WriteLine();
-            for (int i = 0; i < players.Length; i++)
-            {
-                var player = players[i];
-                if (player.Alive && currentPlayerIndex != i)
-                {
-                    Console.WriteLine($"{i + 1}: {player.Name}");
-                }
-            }
-
-            Console.Write("Select player to attack: ");
-            int.TryParse(Console.ReadLine(), out var selectedPlayerIndex);
-
-            var selectedPlayer = players[selectedPlayerIndex - 1];
-
-            action = currentPlayer.Attack(selectedPlayer);
+            action = game.CurrentPlayer.Attack(game.OtherPlayer);
             break;
 
         case { Key: ConsoleKey.H }:
-            Console.WriteLine();
-            action = currentPlayer.Heal();
+            action = game.CurrentPlayer.Heal();
             break;
 
         default:
             continue;
     }
 
-    consoleLog.Add((turn, action));
+    game.LogAction(action);
 
-    Console.WriteLine();
-    Console.WriteLine(action);
-    Console.WriteLine();
-    Console.WriteLine("Press <Enter> to end turn!");
-    Console.ReadLine();
-
-    AdvancePlayerTurn();
+    game.EndTurn();
 }
 
-PrintMenu(false);
-
-void AdvancePlayerTurn()
+void PrintMenu()
 {
-    var playerCount = players!.Length;
-    if (playerCount > 1)
-        currentPlayerIndex += 1;
-
-    if (currentPlayerIndex == playerCount)
-        currentPlayerIndex = 0;
-
-    turn += 1;
-}
-
-void PrintMenu(bool showActions)
-{
-    const string divider = """---------------------------""";
-
     Console.Clear();
-    Console.WriteLine(divider);
-
-    for (int i = 0; i < players.Length; i++)
+    foreach (var player in game.Players)
     {
+        Console.ForegroundColor = player.Color;
         Console.WriteLine($"""
-            Player {i + 1} {(currentPlayerIndex == i ? "(Active)" : "")}
-            Name: {players[i].Name}
-            HP:   {players[i].Health:00}
-            {divider}
-            """);
+        --- Player ---
+        Name: {player.Name}
+        HP:   {player.Health:00}
+        DMG:  {player.MinDamage}-{player.MaxDamage}
+        Heal: {player.MinHeal}-{player.MaxHeal}
+        """);
+        Console.ResetColor();
     }
-
-    if (showActions)
-    {
-        Console.WriteLine($"""
-            Actions:
-            A - Attack
-            H - Heal
-            {divider}
-            """);
-    }
-    else
-    {
-        foreach (var consoleLogItem in consoleLog)
-        {
-            Console.WriteLine($"{consoleLogItem.turn}: {consoleLogItem.action}");
-        }
-    }
+    Console.ForegroundColor = ConsoleColor.Magenta;
+    Console.WriteLine($"""
+        --- Action ---
+        A  -  Attack
+        H  -  Heal
+        --------------
+        """);
+    Console.ResetColor();
 }

@@ -2,18 +2,24 @@
 
 public class Player
 {
-    private static readonly Random RandomNumberGenerator = new();
+    private static readonly Random Random = new();
 
-    public Player(string name)
+    public Player(string name, ConsoleColor color)
     {
         Name = name;
+        Color = color;
         Health = 25;
         MinDamage = 2;
         MaxDamage = 6;
-        CriticalChance = 15;
+        MinHeal = 2;
+        MaxHeal = 6;
     }
 
-    public string Name { get; private set; }
+    public ConsoleColor Color { get; }
+
+    public bool Alive => Health > 0;
+
+    public string Name { get; }
 
     public int Health { get; private set; }
 
@@ -21,28 +27,21 @@ public class Player
 
     public int MaxDamage { get; private set; }
 
-    public int CriticalChance { get; private set; }
+    public int MinHeal { get; private set; }
 
-    public bool Alive => Health > 0;
+    public int MaxHeal { get; private set; }
 
     public string Attack(Player other)
     {
-        var damage = RandomNumberGenerator.Next(MinDamage, MaxDamage);
-
-        var criticalHit = RandomNumberGenerator.Next(0, 100) <= CriticalChance;
-        if (criticalHit)
-            damage *= 2;
-
+        var damage = Random.Next(MinDamage, MaxDamage);
         other.Health -= damage;
-
-        return $"{Name} attacks {other.Name} for {damage} damage. {(criticalHit ? "(crit)" : "")}";
+        return $"{Name} attacks {other.Name} for {damage}.";
     }
 
     public string Heal()
     {
-        var heal = 3;
+        var heal = Random.Next(MinHeal, MaxHeal);
         Health += heal;
-
         return $"{Name} heals for {heal}.";
     }
 }
